@@ -101,10 +101,42 @@ class DjangoCodeGenerator {
    * @param {string} text
    * @param {Object} options
    */
-  writeMeta (codeWriter, text, options) {
+  writeMeta (codeWriter, elem, options) {
+    
+    var is_blank=true;
+
     codeWriter.writeLine('class Meta:')
     codeWriter.indent()
-    codeWriter.writeLine('pass')
+    if (elem.isAbstact){
+      codeWriter.writeLine('abstract = True')
+      is_blank = false      
+    }
+
+    var tags = elem.tags;
+    var tag;
+
+    for (var i = 0, len = tags.length; i < len; i++) {
+
+      is_blank = false  
+      tag = tags[i]
+
+      if (tag.kind == "string"){
+        codeWriter.writeLine(tag.name + "='" + tag.value.trim().split('\n') + "'");   
+      } else if (tag.kind == "number"){
+        codeWriter.writeLine(tag.name + "=" + tag.number);
+      } else if (tag.kind == "boolean"){
+        if (tag.checked){
+          codeWriter.writeLine(e.name + "=True")        
+        } else {
+          codeWriter.writeLine(tag.name + "=False")
+        }
+      }
+    }
+  
+    if (is_blank){
+      codeWriter.writeLine('pass')
+    }
+
     codeWriter.outdent()
     codeWriter.writeLine()
   }
@@ -242,6 +274,31 @@ class DjangoCodeGenerator {
     }
   }
 
+
+  writeRealation (codeWriter, elem, asso, options) {
+
+    if (asso.end1.reference === elem && asso.end2.navigable === true && asso.end2.multiplicity && asso.end1.multiplicity) {       
+        if (asso.end1.multiplicity == "1" && asso.end2.multiplicity == "1"){
+          var refObjName = asso.end2.reference.name
+          var var_name = refObjName.toLowerCase()
+          codeWriter.writeLine(var_name + " = models.OneToOne('" + refObjName + "')")
+        }
+
+        if (['0..*', '1..*', '*'].includes(asso.end1.multiplicity.trim()) && asso.end2.multiplicity == "1"){
+          var refObjName = asso.end2.reference.name
+          var var_name = refObjName.toLowerCase()
+          codeWriter.writeLine(var_name + " = models.ForeingKey('" + asso.end2.reference.name + "', on_delete=models.PROTECT)")
+        }
+
+        if (['0..*', '1..*', '*'].includes(asso.end1.multiplicity.trim()) && ['0..*', '1..*', '*'].includes(asso.end2.multiplicity.trim())){
+          var refObjName = asso.end2.reference.name
+          var var_name = refObjName.toLowerCase() + "_set"
+          codeWriter.writeLine(var_name + " = models.ManyToMany('" + asso.end2.reference.name + "' )")
+        }
+      }
+  }
+
+
   /**
    * Write Enum
    * @param {StringWriter} codeWriter
@@ -308,7 +365,7 @@ class DjangoCodeGenerator {
 
     // Docstring
     this.writeDoc(codeWriter, elem.documentation, options)
-    this.writeMeta(codeWriter, elem.documentation, options)
+    this.writeMeta(codeWriter, elem, options)
 
     if (elem.attributes.length === 0 && elem.operations.length === 0) {
       codeWriter.writeLine('pass')
@@ -316,13 +373,25 @@ class DjangoCodeGenerator {
 
       elem.attributes.forEach(function (attr) {
         self.writeAttribute(codeWriter, attr, options, true)
-        
       })
 
       codeWriter.writeLine()
       
       // Constructor
       // this.writeConstructor(codeWriter, elem, options)
+
+      // from associations
+      var associations = app.repository.getRelationshipsOf(elem, function (rel) {
+        return (rel instanceof type.UMLAssociation)
+      })
+
+      // Relations
+      for (var i = 0, len = associations.length; i < len; i++) {
+        var asso = associations[i]
+        self.writeRealation(codeWriter, elem, asso, options)
+      }
+      
+      codeWriter.writeLine()
 
       // Methods
       if (elem.operations.length > 0) {
@@ -331,6 +400,7 @@ class DjangoCodeGenerator {
         })
       }
     }
+
     codeWriter.outdent()
     codeWriter.writeLine()
   }
@@ -387,21 +457,39 @@ class DjangoCodeGenerator {
 }
 
 function mapBasicTypesToDjangoFieldClass(elem){
+  var line = ""
   var type_maps = {
-    "string": "  models.CharField()",
-    "text": "  models.TextField()",
-    "integer": "  models.IntegerField()",
-    "decimal": "  models.DecimalField()",
-    "boolean": " models.BooleanField()",
-    "date": " models.DateField()",
-    "datetime": " models.DateTimeField()",
-    "email": " models.EmailField()",
-    "file": " models.FileField()",
+    "string": "models.CharField",
+    "text": "models.TextField",
+    "integer": "models.IntegerField",
+    "decimal": "models.DecimalField",
+    "boolean": "models.BooleanField",
+    "date": "models.DateField",
+    "datetime": "models.DateTimeField",
+    "email": "models.EmailField",
+    "file": "models.FileField",
   }
 
-  return type_maps[elem.type.name];
+  line = type_maps[elem.type.name];
 
+  var tags = elem.tags;
+
+  line += '(' + tags.map(function (e) {
+    if (e.kind == "string"){
+      return e.name + "='" + e.value.trim().split('\n') + "'";   
+    }else if (e.kind == "number"){
+      return e.name + "=" + e.number;
+    }else if (e.kind == "boolean"){
+      if (e.checked){
+        return e.name + "=True"        
+      }else {
+        return e.name + "=False"
+      }
+    }
+  }).join(', ') + ')'
+  return line;
 }
+
 
 /**
  * Generate
