@@ -1,0 +1,17 @@
+{
+  "name": "josemlp91.staruml-django",
+  "title": "Django",
+  "description": "Django models code generator",
+  "homepage": "https://github.com/josemlp91/staruml-django",
+  "issues": "https://github.com/josemlp91/staruml-django/issues",
+  "keywords": ["python"],
+  "version": "0.1",
+  "author": {
+    "name": "José Miguel",
+    "email": "josmilpe@gmail.com"
+  },
+  "license": "MIT",
+  "engines": {
+    "staruml": "^3.0.0"
+  }
+}

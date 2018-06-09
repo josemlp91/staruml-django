@@ -1,0 +1,18 @@
+{
+  "menu": [
+    {
+      "id": "tools",
+      "submenu": [
+        {
+          "label": "Django Models",
+          "id": "tools.django",
+          "submenu": [
+            { "label": "Generate Code...", "id": "tools.django.generate", "command": "django:generate" },
+            { "type": "separator" },
+            { "label": "Configure...", "id": "tools.django.configure", "command": "django:configure" }
+          ]
+        }
+      ]
+    }
+  ]
+}

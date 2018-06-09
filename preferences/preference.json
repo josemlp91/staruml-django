@@ -1,0 +1,40 @@
+{
+  "id": "django",
+  "name": "Django",
+  "schema": {
+    "django.gen": {
+      "text": "Python Code Generation",
+      "type": "section"
+    },
+    "django.gen.installPath": {
+      "text": "Installation Path",
+      "description": "Installation path of python",
+      "type": "string",
+      "default": "#!/usr/bin/python"
+    },
+    "django.gen.djangoModelsPackage": {
+      "text": "Djagno Models Package",
+      "description": "Django Models Package",
+      "type": "string",
+      "default": "from django.db import models"
+    },
+    "django.gen.useTab": {
+      "text": "Use Tab",
+      "description": "Use Tab for indentation instead of spaces.",
+      "type": "check",
+      "default": false
+    },
+    "django.gen.indentSpaces": {
+      "text": "Indent Spaces",
+      "description": "Number of spaces for indentation.",
+      "type": "number",
+      "default": 4
+    },
+    "django.gen.docString": {
+      "text": "Docstring",
+      "description": "Generate docstrings.",
+      "type": "check",
+      "default": true
+    }        
+  }
+}
