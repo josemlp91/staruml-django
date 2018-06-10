@@ -1,4 +1,4 @@
-[Spanish Translation]() 
+[Spanish Translation](https://github.com/josemlp91/staruml-django/blob/master/README_es.md) 
 
 # StartUML extension to auto generate Django Models
 
@@ -8,7 +8,7 @@
 - Auto-generate **Django Model Class**.
 - Auto-generate attributes with the suitable **type**, using standard ``Djando Model Field``, provided by Django ORM.
 - Generate **inheritance**, (if not exist by default ``models.Model``).
-- Generate **relationship**, using **cardinality**, create suitable field,  ``OneToOne``, ``ForeingKey`` y ``ManyToMany``.
+- Generate **relationship**, using **cardinality**, create suitable field,  ``OneToOne``, ``ForeingKey`` and ``ManyToMany``.
 - Auto add attributes in **Meta** models, using ``tags``.
 - Auto add aditional **params** to model attributes and model relationships fields using defined ``tags``.
 
