@@ -16,26 +16,25 @@
 ![](https://raw.githubusercontent.com/josemlp91/staruml-django/master/docs/images/example.png)
 
 
+### Abstact Student
 ```python
 #-*- coding: utf-8 -*-
 
 from django.db import models
-
 
 class AbstractStudent(models.Model):
     class Meta:
         verbose_name='foo'
-        abstract = True
 
-    pass
-
+    type = models.CharField()
 ```
 
+
+### Student Models
 ```python
-
 #-*- coding: utf-8 -*-
-from django.db import models
 
+from django.db import models
 from AbstractStudent import AbstractStudent
 
 class Student(AbstractStudent):
@@ -47,31 +46,19 @@ class Student(AbstractStudent):
     birthdate = models.DateField()
 
     school = models.ForeingKey('School', on_delete=models.PROTECT)
-    teacher_set = models.ManyToMany('Teacher' )
+    teachers = models.ManyToMany('Teacher')
     expedient = models.OneToOne('Expedient')
 
-    def Operation1(self, ):
+    @property
+    def age(self, ):
         pass
 
 ```
 
+### Teacher Model
 ```python
-
 #-*- coding: utf-8 -*-
-from django.db import models
 
-class School(models.Model):
-    class Meta:
-        pass
-
-    name = models.CharField()
-    address = models.CharField()
-
-```
-
-```python
-
-#-*- coding: utf-8 -*-
 from django.db import models
 
 class Teacher(models.Model):
@@ -81,8 +68,27 @@ class Teacher(models.Model):
     name = models.CharField()
     speciality = models.CharField()
 
+    school = models.ForeingKey('School', related_name='teachers', on_delete=models.PROTECT)
+
 ```
 
+### School Model
+
+
+```python
+#-*- coding: utf-8 -*-
+
+from django.db import models
+
+class School(models.Model):
+    class Meta:
+        pass
+
+    name = models.CharField()
+    address = models.CharField()
+```
+
+### Expedient Models
 
 ```python
 #-*- coding: utf-8 -*-
