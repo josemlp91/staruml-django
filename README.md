@@ -13,7 +13,7 @@
 ## Ejemplo
 
 
-![](https://raw.githubusercontent.com/josemlp91/staruml-django/master/docs/images/example.png)
+![](https://raw.githubusercontent.com/josemlp91/staruml-django/master/docs/images/example_diagram.png)
 
 
 ### Abstact Student
