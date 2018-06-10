@@ -8,17 +8,17 @@
 - Auto-generate **Django Model Class**.
 - Auto-generate attributes with the suitable **type**, using standard ``Djando Model Field``, provided by Django ORM.
 - Generate **inheritance**, (if not exist by default ``models.Model``).
-- Generate **relationship**, using **cardinality**, create suitable field,  ``OneToOne``, ``ForeingKey`` and ``ManyToMany``.
+- Generate **relationship**, using **cardinality**, create suitable fields,  ``OneToOne``, ``ForeingKey`` and ``ManyToMany``.
 - Auto add attributes in **Meta** models, using ``tags``.
 - Auto add aditional **params** to model attributes and model relationships fields using defined ``tags``.
 
 
 ## Requirements
 
-To run auto-generate field with suitable ``Django Mode Field``, is necesary  
-have loaded a diagram with a class for each basic type.
+To run auto-generate field with suitable ``Django Mode Field``, is necesary to 
+have a diagram with a class for each basic type loaded.
 
-Can download this squeme with [basic types class](https://raw.githubusercontent.com/josemlp91/staruml-django/master/assets/basictypes.mdj)
+You could download this scheme with [basic class types](https://raw.githubusercontent.com/josemlp91/staruml-django/master/assets/basictypes.mdj)
 
 ### Basic Types
 
