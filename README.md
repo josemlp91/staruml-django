@@ -9,6 +9,11 @@
 - Añadir atributos ``Meta`` en funcion a los ``tags`` definidos.
 - Añadir parámetros adicionales a los los atributos y relaciones en función a los ``tags`` definidos.
 
+## Requisitos
+
+Para que funcione la generación de ``Mode Field`` en función al tipo, es necesario tener en el diagrama de modelos un esquema adicional con clases llamadas como los tipos básicos.
+
+![](https://raw.githubusercontent.com/josemlp91/staruml-django/master/docs/images/basic_types.png)
 
 ## Ejemplo
 
