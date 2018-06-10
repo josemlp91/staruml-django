@@ -4,7 +4,9 @@
   "description": "Django models code generator",
   "homepage": "https://github.com/josemlp91/staruml-django",
   "issues": "https://github.com/josemlp91/staruml-django/issues",
-  "keywords": ["python"],
+  "keywords": [
+    "python"
+  ],
   "version": "0.1",
   "author": {
     "name": "José Miguel",
@@ -13,5 +15,8 @@
   "license": "MIT",
   "engines": {
     "staruml": "^3.0.0"
+  },
+  "dependencies": {
+    "eslint": "^4.19.1"
   }
 }

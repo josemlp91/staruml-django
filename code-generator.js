@@ -21,9 +21,9 @@
  *
  */
 
-const fs = require('fs')
-const path = require('path')
-const codegen = require('./codegen-utils')
+const fs = require('fs');
+const path = require('path');
+const codegen = require('./codegen-utils');
 
 /**
  *  Code Generator
@@ -37,10 +37,10 @@ class DjangoCodeGenerator {
    */
   constructor (baseModel, basePath) {
     /** @member {type.Model} */
-    this.baseModel = baseModel
+    this.baseModel = baseModel;
 
     /** @member {string} */
-    this.basePath = basePath
+    this.basePath = basePath;
   }
 
   /**
@@ -50,14 +50,14 @@ class DjangoCodeGenerator {
    */
   getIndentString (options) {
     if (options.useTab) {
-      return '\t'
+      return '\t';
     } else {
-      var i, len
-      var indent = []
+      var i, len;
+      var indent = [];
       for (i = 0, len = options.indentSpaces; i < len; i++) {
-        indent.push(' ')
+        indent.push(' ');
       }
-      return indent.join('')
+      return indent.join('');
     }
   }
 
@@ -68,9 +68,12 @@ class DjangoCodeGenerator {
    */
   getInherits (elem) {
     var inherits = app.repository.getRelationshipsOf(elem, function (rel) {
-      return (rel.source === elem && (rel instanceof type.UMLGeneralization || rel instanceof type.UMLInterfaceRealization))
-    })
-    return inherits.map(function (gen) { return gen.target })
+      return (rel.source === elem && (rel instanceof type.UMLGeneralization || rel instanceof type.UMLInterfaceRealization));
+    });
+
+    return inherits.map(function (gen) { 
+      return gen.target; 
+    });
   }
 
   /**
@@ -80,17 +83,17 @@ class DjangoCodeGenerator {
    * @param {Object} options
    */
   writeDoc (codeWriter, text, options) {
-    var i, len, lines
+    var i, len, lines;
     if (options.docString && text.trim().length > 0) {
-      lines = text.trim().split('\n')
+      lines = text.trim().split('\n');
       if (lines.length > 1) {
-        codeWriter.writeLine('"""')
+        codeWriter.writeLine('"""');
         for (i = 0, len = lines.length; i < len; i++) {
-          codeWriter.writeLine(lines[i])
+          codeWriter.writeLine(lines[i]);
         }
-        codeWriter.writeLine('"""')
+        codeWriter.writeLine('"""');
       } else {
-        codeWriter.writeLine('"""' + lines[0] + '"""')
+        codeWriter.writeLine('"""' + lines[0] + '"""');
       }
     }
   }
@@ -105,11 +108,11 @@ class DjangoCodeGenerator {
     
     var is_blank=true;
 
-    codeWriter.writeLine('class Meta:')
-    codeWriter.indent()
+    codeWriter.writeLine('class Meta:');
+    codeWriter.indent();
     if (elem.isAbstact){
-      codeWriter.writeLine('abstract = True')
-      is_blank = false      
+      codeWriter.writeLine('abstract = True');
+      is_blank = false;      
     }
 
     var tags = elem.tags;
@@ -117,28 +120,29 @@ class DjangoCodeGenerator {
 
     for (var i = 0, len = tags.length; i < len; i++) {
 
-      is_blank = false  
-      tag = tags[i]
+      is_blank = false; 
+      tag = tags[i];
 
       if (tag.kind == "string"){
-        codeWriter.writeLine(tag.name + "='" + tag.value.trim().split('\n') + "'");   
+        codeWriter.writeLine(tag.name + "='" + tag.value.trim().split('\n') + "'");
+
       } else if (tag.kind == "number"){
         codeWriter.writeLine(tag.name + "=" + tag.number);
+
       } else if (tag.kind == "boolean"){
         if (tag.checked){
-          codeWriter.writeLine(e.name + "=True")        
+          codeWriter.writeLine(e.name + "=True");        
         } else {
-          codeWriter.writeLine(tag.name + "=False")
+          codeWriter.writeLine(tag.name + "=False");
         }
       }
     }
   
     if (is_blank){
-      codeWriter.writeLine('pass')
+      codeWriter.writeLine('pass');
     }
-
-    codeWriter.outdent()
-    codeWriter.writeLine()
+    codeWriter.outdent();
+    codeWriter.writeLine();
   }
 
   /**
@@ -149,20 +153,25 @@ class DjangoCodeGenerator {
    */
   writeVariable (codeWriter, elem, options, isClassVar) {
     if (elem.name.length > 0) {
-      var line
+      var line;
+
       if (isClassVar) {
-        line = elem.name
+        line = elem.name;
+      
       } else {
-        line = 'self.' + elem.name
+        line = 'self.' + elem.name;
       }
+
       if (elem.multiplicity && ['0..*', '1..*', '*'].includes(elem.multiplicity.trim())) {
-        line += ' = []'
+        line += ' = []';
+      
       } else if (elem.defaultValue && elem.defaultValue.length > 0) {
-        line += ' = ' + elem.defaultValue
+        line += ' = ' + elem.defaultValue;
+      
       } else {
-        line += ' = None'
+        line += ' = None';
       }
-      codeWriter.writeLine(line)
+      codeWriter.writeLine(line);
     }
   }
 
@@ -174,27 +183,25 @@ class DjangoCodeGenerator {
    */
   writeAttribute (codeWriter, elem, options, isClassVar) {
     if (elem.name.length > 0) {
-      console.log(elem)
-
-      var line
-      line = elem.name
+      
+      var line;
+      line = elem.name;
       
       if (elem.multiplicity && ['0..*', '1..*', '*'].includes(elem.multiplicity.trim())) {
-        line += ' = []'
+        line += ' = []';
 
       } else if (elem.defaultValue && elem.defaultValue.length > 0) {
-        line += ' = ' + elem.defaultValue
+        line += ' = ' + elem.defaultValue;
 
       } else if (elem.type){
-        line += ' = ' + mapBasicTypesToDjangoFieldClass(elem)
+        line += ' = ' + mapBasicTypesToDjangoFieldClass(elem);
         
       } else {
-        line += ' = None'
+        line += ' = None';
       }
-      codeWriter.writeLine(line)
+      codeWriter.writeLine(line);
     }
   }
-
 
 
   /**
@@ -204,43 +211,43 @@ class DjangoCodeGenerator {
    * @param {Object} options
    */
   writeConstructor (codeWriter, elem, options) {
-    var self = this
-    var hasBody = false
-    codeWriter.writeLine('def __init__(self):')
-    codeWriter.indent()
+    var self = this;
+    var hasBody = false;
+    codeWriter.writeLine('def __init__(self):');
+    codeWriter.indent();
 
     // from attributes
     if (elem.attributes.length > 0) {
       elem.attributes.forEach(function (attr) {
         if (attr.isStatic === false) {
-          self.writeVariable(codeWriter, attr, options, false)
-          hasBody = true
+          self.writeVariable(codeWriter, attr, options, false);
+          hasBody = true;
         }
-      })
+      });
     }
 
     // from associations
     var associations = app.repository.getRelationshipsOf(elem, function (rel) {
-      return (rel instanceof type.UMLAssociation)
-    })
+      return (rel instanceof type.UMLAssociation);
+    });
     for (var i = 0, len = associations.length; i < len; i++) {
-      var asso = associations[i]
+      var asso = associations[i];
       if (asso.end1.reference === elem && asso.end2.navigable === true) {
-        self.writeVariable(codeWriter, asso.end2, options)
-        hasBody = true
+        self.writeVariable(codeWriter, asso.end2, options);
+        hasBody = true;
       }
       if (asso.end2.reference === elem && asso.end1.navigable === true) {
-        self.writeVariable(codeWriter, asso.end1, options)
-        hasBody = true
+        self.writeVariable(codeWriter, asso.end1, options);
+        hasBody = true;
       }
     }
 
     if (!hasBody) {
-      codeWriter.writeLine('pass')
+      codeWriter.writeLine('pass');
     }
 
-    codeWriter.outdent()
-    codeWriter.writeLine()
+    codeWriter.outdent();
+    codeWriter.writeLine();
   }
 
   /**
@@ -248,52 +255,58 @@ class DjangoCodeGenerator {
    * @param {StringWriter} codeWriter
    * @param {type.Model} elem
    * @param {Object} options
-   * @param {boolean} skipBody
-   * @param {boolean} skipParams
    */
   writeMethod (codeWriter, elem, options) {
     if (elem.name.length > 0) {
       // name
-      var line = 'def ' + elem.name
+      var line = 'def ' + elem.name;
 
       // params
-      var params = elem.getNonReturnParameters()
-      var paramStr = params.map(function (p) { return p.name }).join(', ')
+      var params = elem.getNonReturnParameters();
+      var paramStr = params.map(function (p) { 
+        return p.name;
+      }).join(', ');
 
       if (elem.isStatic) {
-        codeWriter.writeLine('@classmethod')
-        codeWriter.writeLine(line + '(cls, ' + paramStr + '):')
+        codeWriter.writeLine('@classmethod');
+        codeWriter.writeLine(line + '(cls, ' + paramStr + '):');
       } else {
-        codeWriter.writeLine(line + '(self, ' + paramStr + '):')
+        codeWriter.writeLine(line + '(self, ' + paramStr + '):');
       }
-      codeWriter.indent()
-      this.writeDoc(codeWriter, elem.documentation, options)
-      codeWriter.writeLine('pass')
-      codeWriter.outdent()
-      codeWriter.writeLine()
+      codeWriter.indent();
+      this.writeDoc(codeWriter, elem.documentation, options);
+      codeWriter.writeLine('pass');
+      codeWriter.outdent();
+      codeWriter.writeLine();
     }
   }
 
-
+  /**
+   * Write writeRealation
+   * @param {StringWriter} codeWriter
+   * @param {type.Model} elem
+   * @param {type.Model} asso
+   * @param {Object} options
+   */
   writeRealation (codeWriter, elem, asso, options) {
 
     if (asso.end1.reference === elem && asso.end2.navigable === true && asso.end2.multiplicity && asso.end1.multiplicity) {       
         if (asso.end1.multiplicity == "1" && asso.end2.multiplicity == "1"){
-          var refObjName = asso.end2.reference.name
-          var var_name = refObjName.toLowerCase()
-          codeWriter.writeLine(var_name + " = models.OneToOne('" + refObjName + "')")
+          var refObjName = asso.end2.reference.name;
+          var var_name = refObjName.toLowerCase();
+          codeWriter.writeLine(var_name + " = models.OneToOne('" + refObjName + "')");
         }
 
         if (['0..*', '1..*', '*'].includes(asso.end1.multiplicity.trim()) && asso.end2.multiplicity == "1"){
-          var refObjName = asso.end2.reference.name
-          var var_name = refObjName.toLowerCase()
-          codeWriter.writeLine(var_name + " = models.ForeingKey('" + asso.end2.reference.name + "', on_delete=models.PROTECT)")
+          var refObjName = asso.end2.reference.name;
+          var var_name = refObjName.toLowerCase();
+          codeWriter.writeLine(var_name + " = models.ForeingKey('" + asso.end2.reference.name + "', on_delete=models.PROTECT)");
         }
 
         if (['0..*', '1..*', '*'].includes(asso.end1.multiplicity.trim()) && ['0..*', '1..*', '*'].includes(asso.end2.multiplicity.trim())){
-          var refObjName = asso.end2.reference.name
-          var var_name = refObjName.toLowerCase() + "_set"
-          codeWriter.writeLine(var_name + " = models.ManyToMany('" + asso.end2.reference.name + "' )")
+          var refObjName = asso.end2.reference.name;
+          var var_name = refObjName.toLowerCase() + "_set";
+          codeWriter.writeLine(var_name + " = models.ManyToMany('" + asso.end2.reference.name + "' )");
         }
       }
   }
@@ -306,28 +319,28 @@ class DjangoCodeGenerator {
    * @param {Object} options
    */
   writeEnum (codeWriter, elem, options) {
-    var line = ''
+    var line = '';
 
-    codeWriter.writeLine('from enum import Enum')
-    codeWriter.writeLine()
+    codeWriter.writeLine('from enum import Enum');
+    codeWriter.writeLine();
 
     // Enum
-    line = 'class ' + elem.name + '(Enum):'
-    codeWriter.writeLine(line)
-    codeWriter.indent()
+    line = 'class ' + elem.name + '(Enum):';
+    codeWriter.writeLine(line);
+    codeWriter.indent();
 
     // Docstring
-    this.writeDoc(codeWriter, elem.documentation, options)
+    this.writeDoc(codeWriter, elem.documentation, options);
 
     if (elem.literals.length === 0) {
-      codeWriter.writeLine('pass')
+      codeWriter.writeLine('pass');
     } else {
       for (var i = 0, len = elem.literals.length; i < len; i++) {
-        codeWriter.writeLine(elem.literals[i].name + ' = ' + (i + 1))
+        codeWriter.writeLine(elem.literals[i].name + ' = ' + (i + 1));
       }
     }
-    codeWriter.outdent()
-    codeWriter.writeLine()
+    codeWriter.outdent();
+    codeWriter.writeLine();
   }
 
   /**
@@ -337,72 +350,72 @@ class DjangoCodeGenerator {
    * @param {Object} options
    */
   writeClass (codeWriter, elem, options) {
-    var self = this
-    var line = ''
-    var _inherits = this.getInherits(elem)
+    var self = this;
+    var line = '';
+    var _inherits = this.getInherits(elem);
 
     // Import
     if (_inherits.length > 0) {
       _inherits.forEach(function (e) {
-        var _path = e.getPath(self.baseModel).map(function (item) { return item.name }).join('.')
-        codeWriter.writeLine('from ' + _path + ' import ' + e.name)
-      })
-      codeWriter.writeLine()
+        var _path = e.getPath(self.baseModel).map(function (item) { return item.name; }).join('.');
+        codeWriter.writeLine('from ' + _path + ' import ' + e.name);
+      });
+      codeWriter.writeLine();
     }
 
     // Class
-    line = 'class ' + elem.name
+    line = 'class ' + elem.name;
 
     // Inherits
     if (_inherits.length > 0) {
-      line += '(' + _inherits.map(function (e) { return e.name }).join(', ') + ')'
+      line += '(' + _inherits.map(function (e) { return e.name; }).join(', ') + ')';
     } else {
-      line += '(models.Model)'
+      line += '(models.Model)';
     }
 
-    codeWriter.writeLine(line + ':')
-    codeWriter.indent()
+    codeWriter.writeLine(line + ':');
+    codeWriter.indent();
 
     // Docstring
-    this.writeDoc(codeWriter, elem.documentation, options)
-    this.writeMeta(codeWriter, elem, options)
+    this.writeDoc(codeWriter, elem.documentation, options);
+    this.writeMeta(codeWriter, elem, options);
 
     if (elem.attributes.length === 0 && elem.operations.length === 0) {
-      codeWriter.writeLine('pass')
+      codeWriter.writeLine('pass');
     } else {
 
       elem.attributes.forEach(function (attr) {
-        self.writeAttribute(codeWriter, attr, options, true)
-      })
+        self.writeAttribute(codeWriter, attr, options, true);
+      });
 
-      codeWriter.writeLine()
+      codeWriter.writeLine();
       
       // Constructor
       // this.writeConstructor(codeWriter, elem, options)
 
       // from associations
       var associations = app.repository.getRelationshipsOf(elem, function (rel) {
-        return (rel instanceof type.UMLAssociation)
-      })
+        return (rel instanceof type.UMLAssociation);
+      });
 
       // Relations
       for (var i = 0, len = associations.length; i < len; i++) {
-        var asso = associations[i]
-        self.writeRealation(codeWriter, elem, asso, options)
+        var asso = associations[i];
+        self.writeRealation(codeWriter, elem, asso, options);
       }
       
-      codeWriter.writeLine()
+      codeWriter.writeLine();
 
       // Methods
       if (elem.operations.length > 0) {
         elem.operations.forEach(function (op) {
-          self.writeMethod(codeWriter, op, options)
-        })
+          self.writeMethod(codeWriter, op, options);
+        });
       }
     }
 
-    codeWriter.outdent()
-    codeWriter.writeLine()
+    codeWriter.outdent();
+    codeWriter.writeLine();
   }
 
   /**
@@ -412,52 +425,52 @@ class DjangoCodeGenerator {
    * @param {Object} options
    */
   generate (elem, basePath, options) {
-    var result = new $.Deferred()
-    var fullPath, codeWriter, file
+    var result = new $.Deferred();
+    var fullPath, codeWriter, file;
 
     // Package (a directory with __init__.py)
     if (elem instanceof type.UMLPackage) {
-      fullPath = path.join(basePath, elem.name)
-      fs.mkdirSync(fullPath)
-      file = path.join(fullPath, '__init__.py')
-      fs.writeFileSync(file, '')
+      fullPath = path.join(basePath, elem.name);
+      fs.mkdirSync(fullPath);
+      file = path.join(fullPath, '__init__.py');
+      fs.writeFileSync(file, '');
       elem.ownedElements.forEach(child => {
-        this.generate(child, fullPath, options)
-      })
+        this.generate(child, fullPath, options);
+      });
 
     // Class
     } else if (elem instanceof type.UMLClass || elem instanceof type.UMLInterface) {
-      console.log(options)
-      fullPath = basePath + '/' + elem.name + '.py'
-      codeWriter = new codegen.CodeWriter(this.getIndentString(options))
+      
+      fullPath = basePath + '/' + elem.name + '.py';
+      codeWriter = new codegen.CodeWriter(this.getIndentString(options));
       
       //codeWriter.writeLine(options.installPath)
-      codeWriter.writeLine('#-*- coding: utf-8 -*-')
-      codeWriter.writeLine(options.djangoModelsPackage)
-      codeWriter.writeLine()
-      this.writeClass(codeWriter, elem, options)
-      fs.writeFileSync(fullPath, codeWriter.getData())
+      codeWriter.writeLine('#-*- coding: utf-8 -*-');
+      codeWriter.writeLine(options.djangoModelsPackage);
+      codeWriter.writeLine();
+      this.writeClass(codeWriter, elem, options);
+      fs.writeFileSync(fullPath, codeWriter.getData());
 
     // Enum
     } else if (elem instanceof type.UMLEnumeration) {
-      fullPath = basePath + '/' + elem.name + '.py'
-      codeWriter = new codegen.CodeWriter(this.getIndentString(options))
-      codeWriter.writeLine(options.installPath)
-      codeWriter.writeLine('#-*- coding: utf-8 -*-')
-      codeWriter.writeLine()
-      this.writeEnum(codeWriter, elem, options)
-      fs.writeFileSync(fullPath, codeWriter.getData())
+      fullPath = basePath + '/' + elem.name + '.py';
+      codeWriter = new codegen.CodeWriter(this.getIndentString(options));
+      codeWriter.writeLine(options.installPath);
+      codeWriter.writeLine('#-*- coding: utf-8 -*-');
+      codeWriter.writeLine();
+      this.writeEnum(codeWriter, elem, options);
+      fs.writeFileSync(fullPath, codeWriter.getData());
 
     // Others (Nothing generated.)
     } else {
-      result.resolve()
+      result.resolve();
     }
-    return result.promise()
+    return result.promise();
   }
 }
 
 function mapBasicTypesToDjangoFieldClass(elem){
-  var line = ""
+  var line = "";
   var type_maps = {
     "string": "models.CharField",
     "text": "models.TextField",
@@ -468,7 +481,7 @@ function mapBasicTypesToDjangoFieldClass(elem){
     "datetime": "models.DateTimeField",
     "email": "models.EmailField",
     "file": "models.FileField",
-  }
+  };
 
   line = type_maps[elem.type.name];
 
@@ -481,12 +494,12 @@ function mapBasicTypesToDjangoFieldClass(elem){
       return e.name + "=" + e.number;
     }else if (e.kind == "boolean"){
       if (e.checked){
-        return e.name + "=True"        
+        return e.name + "=True";        
       }else {
-        return e.name + "=False"
+        return e.name + "=False";
       }
     }
-  }).join(', ') + ')'
+  }).join(', ') + ')';
   return line;
 }
 
@@ -498,16 +511,14 @@ function mapBasicTypesToDjangoFieldClass(elem){
  * @param {Object} options
  */
 function generate (baseModel, basePath, options) {
-  
-  console.log(options);
-  
-  var fullPath
-  var djangoCodeGenerator = new DjangoCodeGenerator(baseModel, basePath)
-  fullPath = basePath + '/' + baseModel.name
-  fs.mkdirSync(fullPath)
+    
+  var fullPath;
+  var djangoCodeGenerator = new DjangoCodeGenerator(baseModel, basePath);
+  fullPath = basePath + '/' + baseModel.name;
+  fs.mkdirSync(fullPath);
   baseModel.ownedElements.forEach(child => {
-    djangoCodeGenerator.generate(child, fullPath, options)
-  })
+    djangoCodeGenerator.generate(child, fullPath, options);
+  });
 }
 
-exports.generate = generate
+exports.generate = generate;

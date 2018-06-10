@@ -21,6 +21,7 @@
  *
  */
 
+ 
 /**
  * CodeWriter
  */
@@ -30,27 +31,27 @@ class CodeWriter {
    */
   constructor (indentString) {
     /** @member {Array.<string>} lines */
-    this.lines = []
+    this.lines = [];
 
     /** @member {string} indentString */
-    this.indentString = indentString || '    ' // default 4 spaces
+    this.indentString = indentString || '    '; // default 4 spaces
 
     /** @member {Array.<string>} indentations */
-    this.indentations = []
+    this.indentations = [];
   }
 
   /**
    * Indent
    */
   indent () {
-    this.indentations.push(this.indentString)
+    this.indentations.push(this.indentString);
   }
 
   /**
    * Outdent
    */
   outdent () {
-    this.indentations.splice(this.indentations.length - 1, 1)
+    this.indentations.splice(this.indentations.length - 1, 1);
   }
 
   /**
@@ -59,9 +60,9 @@ class CodeWriter {
    */
   writeLine (line) {
     if (line) {
-      this.lines.push(this.indentations.join('') + line)
+      this.lines.push(this.indentations.join('') + line);
     } else {
-      this.lines.push('')
+      this.lines.push('');
     }
   }
 
@@ -70,9 +71,9 @@ class CodeWriter {
    * @return {string}
    */
   getData () {
-    return this.lines.join('\n')
+    return this.lines.join('\n');
   }
 
 }
 
-exports.CodeWriter = CodeWriter
+exports.CodeWriter = CodeWriter;

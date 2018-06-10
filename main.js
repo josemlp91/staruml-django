@@ -21,7 +21,7 @@
  *
  */
 
-const codeGenerator = require('./code-generator')
+const codeGenerator = require('./code-generator');
 
 function getGenOptions () {
   return {
@@ -30,7 +30,7 @@ function getGenOptions () {
     useTab: app.preferences.get('django.gen.useTab'),
     indentSpaces: app.preferences.get('django.gen.indentSpaces'),
     docString: app.preferences.get('django.gen.docString')
-  }
+  };
 }
 
 /**
@@ -42,35 +42,35 @@ function getGenOptions () {
  */
 function _handleGenerate (base, path, options) {
   // If options is not passed, get from preference
-  options = options || getGenOptions()
+  options = options || getGenOptions();
   
   // If base is not assigned, popup ElementPicker
   if (!base) {
     app.elementPickerDialog.showDialog('Select a base model to generate codes', null, type.UMLPackage).then(function ({buttonId, returnValue}) {
       if (buttonId === 'ok') {
-        base = returnValue
+        base = returnValue;
         // If path is not assigned, popup Open Dialog to select a folder
         if (!path) {
-          var files = app.dialogs.showOpenDialog('Select a folder where generated codes to be located', null, null, { properties: [ 'openDirectory' ] })
+          var files = app.dialogs.showOpenDialog('Select a folder where generated codes to be located', null, null, { properties: [ 'openDirectory' ] });
           if (files && files.length > 0) {
-            path = files[0]
-            codeGenerator.generate(base, path, options)
+            path = files[0];
+            codeGenerator.generate(base, path, options);
           }
         } else {
-          codeGenerator.generate(base, path, options)
+          codeGenerator.generate(base, path, options);
         }
       }
-    })
+    });
   } else {
     // If path is not assigned, popup Open Dialog to select a folder
     if (!path) {
-      var files = app.dialogs.showOpenDialog('Select a folder where generated codes to be located', null, null, { properties: [ 'openDirectory' ] })
+      var files = app.dialogs.showOpenDialog('Select a folder where generated codes to be located', null, null, { properties: [ 'openDirectory' ] });
       if (files && files.length > 0) {
-        path = files[0]
-        codeGenerator.generate(base, path, options)
+        path = files[0];
+        codeGenerator.generate(base, path, options);
       }
     } else {
-      codeGenerator.generate(base, path, options)
+      codeGenerator.generate(base, path, options);
     }
   }
 }
@@ -79,12 +79,12 @@ function _handleGenerate (base, path, options) {
  * Popup PreferenceDialog with Django Preference Schema
  */
 function _handleConfigure () {
-  app.commands.execute('application:preferences', 'django')
+  app.commands.execute('application:preferences', 'django');
 }
 
 function init () {
-  app.commands.register('django:generate', _handleGenerate)
-  app.commands.register('django:configure', _handleConfigure)
+  app.commands.register('django:generate', _handleGenerate);
+  app.commands.register('django:configure', _handleConfigure);
 }
 
-exports.init = init
+exports.init = init;
