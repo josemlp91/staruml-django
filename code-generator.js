@@ -72,6 +72,7 @@ class DjangoCodeGenerator {
     });
 
     return inherits.map(function (gen) { 
+      //console.log(gen.target);
       return gen.target; 
     });
   }
@@ -258,6 +259,8 @@ class DjangoCodeGenerator {
    */
   writeMethod (codeWriter, elem, options) {
     if (elem.name.length > 0) {
+
+      
       // name
       var line = 'def ' + elem.name;
 
@@ -267,10 +270,15 @@ class DjangoCodeGenerator {
         return p.name;
       }).join(', ');
 
+      
+
       if (elem.isStatic) {
         codeWriter.writeLine('@classmethod');
         codeWriter.writeLine(line + '(cls, ' + paramStr + '):');
       } else {
+        if (elem.isQuery){
+          codeWriter.writeLine('@property');
+        }
         codeWriter.writeLine(line + '(self, ' + paramStr + '):');
       }
       codeWriter.indent();
@@ -290,25 +298,48 @@ class DjangoCodeGenerator {
    */
   writeRealation (codeWriter, elem, asso, options) {
 
+    var tags = asso.tags;
+    var tags_str = "";
+
+    console.log(tags);
+
+    tags_str += tags.map(function (e) {
+      if (e.kind == "string"){
+        return e.name + "='" + e.value.trim().split('\n') + "'";   
+      }else if (e.kind == "number"){
+        return e.name + "=" + e.number;
+      }else if (e.kind == "boolean"){
+        if (e.checked){
+          return e.name + "=True";        
+        }else {
+          return e.name + "=False";
+        }
+      }
+    }).join(', ');
+
+    if (tags_str){
+      tags_str = ", " + tags_str;
+    }
+
     if (asso.end1.reference === elem && asso.end2.navigable === true && asso.end2.multiplicity && asso.end1.multiplicity) {       
         if (asso.end1.multiplicity == "1" && asso.end2.multiplicity == "1"){
           var refObjName = asso.end2.reference.name;
-          var var_name = refObjName.toLowerCase();
-          codeWriter.writeLine(var_name + " = models.OneToOne('" + refObjName + "')");
+          var var_name = asso.name;
+          codeWriter.writeLine(var_name + " = models.OneToOne('" + refObjName + "'"+ tags_str +")");
         }
 
         if (['0..*', '1..*', '*'].includes(asso.end1.multiplicity.trim()) && asso.end2.multiplicity == "1"){
           var refObjName = asso.end2.reference.name;
-          var var_name = refObjName.toLowerCase();
-          codeWriter.writeLine(var_name + " = models.ForeingKey('" + asso.end2.reference.name + "', on_delete=models.PROTECT)");
+          var var_name = asso.name;
+          codeWriter.writeLine(var_name + " = models.ForeingKey('" + asso.end2.reference.name + "'" + tags_str +", on_delete=models.PROTECT)");
         }
 
         if (['0..*', '1..*', '*'].includes(asso.end1.multiplicity.trim()) && ['0..*', '1..*', '*'].includes(asso.end2.multiplicity.trim())){
           var refObjName = asso.end2.reference.name;
-          var var_name = refObjName.toLowerCase() + "_set";
-          codeWriter.writeLine(var_name + " = models.ManyToMany('" + asso.end2.reference.name + "' )");
+          var var_name = asso.name;
+          codeWriter.writeLine(var_name + " = models.ManyToMany('" + asso.end2.reference.name + "'"+ tags_str +")");
         }
-      }
+    }
   }
 
 
@@ -441,11 +472,12 @@ class DjangoCodeGenerator {
     // Class
     } else if (elem instanceof type.UMLClass || elem instanceof type.UMLInterface) {
       
-      fullPath = basePath + '/' + elem.name + '.py';
+      fullPath = basePath + '/' + elem.name.toLowerCase() + '.py';
       codeWriter = new codegen.CodeWriter(this.getIndentString(options));
       
       //codeWriter.writeLine(options.installPath)
       codeWriter.writeLine('#-*- coding: utf-8 -*-');
+      codeWriter.writeLine();
       codeWriter.writeLine(options.djangoModelsPackage);
       codeWriter.writeLine();
       this.writeClass(codeWriter, elem, options);
@@ -514,7 +546,7 @@ function generate (baseModel, basePath, options) {
     
   var fullPath;
   var djangoCodeGenerator = new DjangoCodeGenerator(baseModel, basePath);
-  fullPath = basePath + '/' + baseModel.name;
+  fullPath = basePath + '/' + baseModel.name.toLowerCase();
   fs.mkdirSync(fullPath);
   baseModel.ownedElements.forEach(child => {
     djangoCodeGenerator.generate(child, fullPath, options);
