@@ -18,6 +18,8 @@
 To run auto-generate field with suitable ``Django Mode Field``, is necesary  
 have loaded a diagram with a class for each basic type.
 
+Can download this squeme with [basic types class](https://raw.githubusercontent.com/josemlp91/staruml-django/master/assets/basictypes.mdj)
+
 ### Basic Types
 
 - **string**:  ``models.CharField``
