@@ -547,10 +547,35 @@ function generate (baseModel, basePath, options) {
   var fullPath;
   var djangoCodeGenerator = new DjangoCodeGenerator(baseModel, basePath);
   fullPath = basePath + '/' + baseModel.name.toLowerCase();
-  fs.mkdirSync(fullPath);
+  if (!fs.existsSync(fullPath)){
+    fs.mkdirSync(fullPath);
+  }else{
+    var buttonId = app.dialogs.showConfirmDialog("Exist a folder with the same name, overwrite?");
+    if (buttonId === 'ok') {
+      deleteFolderRecursive(fullPath);
+      fs.mkdirSync(fullPath);
+      app.dialogs.showInfoDialog("New folder creaded.");
+    } else {
+      app.dialogs.showErrorDialog("Canceled operation by user.");
+    }
+  }
   baseModel.ownedElements.forEach(child => {
     djangoCodeGenerator.generate(child, fullPath, options);
   });
 }
+
+var deleteFolderRecursive = function(path) {
+  if (fs.existsSync(path)) {
+    fs.readdirSync(path).forEach(function(file, index){
+      var curPath = path + "/" + file;
+      if (fs.lstatSync(curPath).isDirectory()) { // recurse
+        deleteFolderRecursive(curPath);
+      } else { // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(path);
+  }
+};
 
 exports.generate = generate;
