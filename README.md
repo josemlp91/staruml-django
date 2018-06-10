@@ -16,7 +16,7 @@
 ![](https://raw.githubusercontent.com/josemlp91/staruml-django/master/docs/images/example_diagram.png)
 
 
-### Abstact Student
+### AbstactStudent Model
 ```python
 #-*- coding: utf-8 -*-
 
@@ -30,7 +30,7 @@ class AbstractStudent(models.Model):
 ```
 
 
-### Student Models
+### Student Model
 ```python
 #-*- coding: utf-8 -*-
 
@@ -88,7 +88,7 @@ class School(models.Model):
     address = models.CharField()
 ```
 
-### Expedient Models
+### Expedient Model
 
 ```python
 #-*- coding: utf-8 -*-
