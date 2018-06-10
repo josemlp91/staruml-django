@@ -7,7 +7,7 @@
 - Representar herencia, en caso de no existir, por defecto hereda de ``models.Model``.
 - Generar relaciones, añadiendo ``OneToOne``, ``ForeingKey`` y ``ManyToMany``.
 - Añadir atributos ``Meta`` en funcion a los ``tags`` definidos.
-- Añadir restricciones a los atributos en función a los ``tags`` definidos.
+- Añadir parámetros adicionales a los los atributos y relaciones en función a los ``tags`` definidos.
 
 
 ## Ejemplo
