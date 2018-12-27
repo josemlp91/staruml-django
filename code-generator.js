@@ -132,7 +132,7 @@ class DjangoCodeGenerator {
 
       } else if (tag.kind == "boolean"){
         if (tag.checked){
-          codeWriter.writeLine(e.name + "=True");        
+          codeWriter.writeLine(tag.name + "=True");        
         } else {
           codeWriter.writeLine(tag.name + "=False");
         }
