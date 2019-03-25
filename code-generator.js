@@ -411,38 +411,48 @@ class DjangoCodeGenerator {
     this.writeDoc(codeWriter, elem.documentation, options);
     this.writeMeta(codeWriter, elem, options);
 
-    if (elem.attributes.length === 0 && elem.operations.length === 0) {
-      codeWriter.writeLine('pass');
-    } else {
+    var write_pass = true;
 
+
+    if (elem.attributes.length !== 0) {
       elem.attributes.forEach(function (attr) {
         self.writeAttribute(codeWriter, attr, options, true);
       });
 
       codeWriter.writeLine();
-      
+
       // Constructor
       // this.writeConstructor(codeWriter, elem, options)
+      write_pass = false;
+    }
 
-      // from associations
-      var associations = app.repository.getRelationshipsOf(elem, function (rel) {
-        return (rel instanceof type.UMLAssociation);
-      });
+    // from associations
+    var associations = app.repository.getRelationshipsOf(elem, function (rel) {
+      return (rel instanceof type.UMLAssociation);
+    });
 
-      // Relations
-      for (var i = 0, len = associations.length; i < len; i++) {
-        var asso = associations[i];
-        self.writeRealation(codeWriter, elem, asso, options);
-      }
-      
+    // Relations
+    for (var i = 0, len = associations.length; i < len; i++) {
+      var asso = associations[i];
+      write_pass = !self.writeRealation(codeWriter, elem, asso, options) && write_pass;
+    }
+
+    if (i > 0) {
       codeWriter.writeLine();
+      write_pass = false;
+    }
 
-      // Methods
-      if (elem.operations.length > 0) {
-        elem.operations.forEach(function (op) {
-          self.writeMethod(codeWriter, op, options);
-        });
-      }
+
+    // Methods
+    if (elem.operations.length > 0) {
+      elem.operations.forEach(function (op) {
+        self.writeMethod(codeWriter, op, options);
+      });
+      write_pass = false;
+    }
+
+    if (write_pass) {
+      codeWriter.writeLine('pass');
     }
 
     codeWriter.outdent();
