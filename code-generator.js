@@ -111,7 +111,7 @@ class DjangoCodeGenerator {
 
     codeWriter.writeLine('class Meta:');
     codeWriter.indent();
-    if (elem.isAbstact){
+    if (elem.isAbstract){
       codeWriter.writeLine('abstract = True');
       is_blank = false;      
     }
