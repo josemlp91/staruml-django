@@ -325,7 +325,7 @@ class DjangoCodeGenerator {
         if (asso.end1.multiplicity == "1" && asso.end2.multiplicity == "1"){
           var refObjName = asso.end2.reference.name;
           var var_name = asso.name;
-          codeWriter.writeLine(var_name + " = models.OneToOne('" + refObjName + "'"+ tags_str +")");
+          codeWriter.writeLine(var_name + " = models.OneToOneField('" + refObjName + "'"+ tags_str +")");
         }
 
         if (['0..*', '1..*', '*'].includes(asso.end1.multiplicity.trim()) && asso.end2.multiplicity == "1"){
@@ -337,7 +337,7 @@ class DjangoCodeGenerator {
         if (['0..*', '1..*', '*'].includes(asso.end1.multiplicity.trim()) && ['0..*', '1..*', '*'].includes(asso.end2.multiplicity.trim())){
           var refObjName = asso.end2.reference.name;
           var var_name = asso.name;
-          codeWriter.writeLine(var_name + " = models.ManyToMany('" + asso.end2.reference.name + "'"+ tags_str +")");
+          codeWriter.writeLine(var_name + " = models.ManyToManyField('" + asso.end2.reference.name + "'"+ tags_str +")");
         }
     }
   }
