@@ -337,6 +337,17 @@ class DjangoCodeGenerator {
         if (['0..*', '1..*', '*'].includes(asso.end1.multiplicity.trim()) && ['0..*', '1..*', '*'].includes(asso.end2.multiplicity.trim())){
           var refObjName = asso.end2.reference.name;
           var var_name = asso.name;
+
+          // If 'through' tag not already in tags...
+          if (!('through' in tags)) {
+            var references = app.repository.getRefsTo(asso, ref => {
+              // searches for an Association Class.
+              return (ref instanceof type.UMLAssociationClassLink);
+            });
+            if (references.length > 0) {  // There should be one at most.
+              tags_str = ', through=' + "'" + references[0].classSide.name + "'" + tags_str;
+            }
+          }
           codeWriter.writeLine(var_name + " = models.ManyToMany('" + asso.end2.reference.name + "'"+ tags_str +")");
         }
     }
