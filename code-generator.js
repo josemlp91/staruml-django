@@ -78,6 +78,17 @@ class DjangoCodeGenerator {
   }
 
   /**
+   * Collect UMLAssociationClassLinks (relations for intermediate tables) that reference a given element
+   * @param elem
+   * @returns {null}
+   */
+  getClassLinks (elem) {
+    return app.repository.getRefsTo(elem, ref => {
+      return (ref instanceof type.UMLAssociationClassLink);
+    });
+  }
+
+  /**
    * Write Doc
    * @param {StringWriter} codeWriter
    * @param {string} text
@@ -321,7 +332,19 @@ class DjangoCodeGenerator {
       tags_str = ", " + tags_str;
     }
 
-    if (asso.end1.reference === elem && asso.end2.navigable === true && asso.end2.multiplicity && asso.end1.multiplicity) {       
+    if ("classSide" in asso && asso.classSide === elem) {  // This is an intermediate model
+        var end1 = asso.associationSide.end1;
+        var end2 = asso.associationSide.end2;
+        if (end1.navigable === true && end2.navigable === true && end1.multiplicity && end2.multiplicity
+            && ['0..*', '1..*', '*'].includes(end1.multiplicity.trim()) && ['0..*', '1..*', '*'].includes(end2.multiplicity.trim())) {
+          var end;
+          for (end of [end1, end2]) {
+            var refObjName = end.reference.name;
+            var var_name = refObjName.toLowerCase();
+            codeWriter.writeLine(var_name + " = models.ForeingKey('" + refObjName + "'" + tags_str + ", on_delete=models.PROTECT)");
+          }
+        }
+    } else if (asso.end1.reference === elem && asso.end2.navigable === true && asso.end2.multiplicity && asso.end1.multiplicity) {       
         if (asso.end1.multiplicity == "1" && asso.end2.multiplicity == "1"){
           var refObjName = asso.end2.reference.name;
           var var_name = asso.name;
@@ -340,10 +363,7 @@ class DjangoCodeGenerator {
 
           // If 'through' tag not already in tags...
           if (!('through' in tags)) {
-            var references = app.repository.getRefsTo(asso, ref => {
-              // searches for an Association Class.
-              return (ref instanceof type.UMLAssociationClassLink);
-            });
+            var references = this.getClassLinks(asso);
             if (references.length > 0) {  // There should be one at most.
               tags_str = ', through=' + "'" + references[0].classSide.name + "'" + tags_str;
             }
@@ -439,6 +459,15 @@ class DjangoCodeGenerator {
       var associations = app.repository.getRelationshipsOf(elem, function (rel) {
         return (rel instanceof type.UMLAssociation);
       });
+
+      // Relations
+      for (var i = 0, len = associations.length; i < len; i++) {
+        var asso = associations[i];
+        self.writeRealation(codeWriter, elem, asso, options);
+      }
+
+      // from class links
+      associations = this.getClassLinks(elem);
 
       // Relations
       for (var i = 0, len = associations.length; i < len; i++) {
