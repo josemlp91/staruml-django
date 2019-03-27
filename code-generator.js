@@ -301,21 +301,8 @@ class DjangoCodeGenerator {
     var tags = asso.tags;
     var tags_str = "";
 
-    console.log(tags);
-
-    tags_str += tags.map(function (e) {
-      if (e.kind == "string"){
-        return e.name + "='" + e.value.trim().split('\n') + "'";   
-      }else if (e.kind == "number"){
-        return e.name + "=" + e.number;
-      }else if (e.kind == "boolean"){
-        if (e.checked){
-          return e.name + "=True";        
-        }else {
-          return e.name + "=False";
-        }
-      }
-    }).join(', ');
+    // console.log(tags);
+    tags_str += getTagsString(tags);
 
     if (tags_str){
       tags_str = ", " + tags_str;
@@ -501,6 +488,20 @@ class DjangoCodeGenerator {
   }
 }
 
+function getTagsString(tags) {
+  return tags.map(function (e) {
+    if (e.kind == "string") {
+      return e.name + "='" + e.value.trim().split('\n') + "'";
+    } else if (e.kind == "number") {
+      return e.name + "=" + e.number;
+    } else if (e.kind == "boolean") {
+      return e.name + (e.checked ? "=True" : "=False");
+    } else if (e.kind == "reference") {
+      return e.name + "=" + e.reference.name;
+    }
+  }).join(', ')
+}
+
 function mapBasicTypesToDjangoFieldClass(elem){
   var line = "";
   var type_maps = {
@@ -519,19 +520,7 @@ function mapBasicTypesToDjangoFieldClass(elem){
 
   var tags = elem.tags;
 
-  line += '(' + tags.map(function (e) {
-    if (e.kind == "string"){
-      return e.name + "='" + e.value.trim().split('\n') + "'";   
-    }else if (e.kind == "number"){
-      return e.name + "=" + e.number;
-    }else if (e.kind == "boolean"){
-      if (e.checked){
-        return e.name + "=True";        
-      }else {
-        return e.name + "=False";
-      }
-    }
-  }).join(', ') + ')';
+  line += '(' + getTagsString(tags) + ')';
   return line;
 }
 
