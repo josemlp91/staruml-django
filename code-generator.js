@@ -122,7 +122,7 @@ class DjangoCodeGenerator {
 
     codeWriter.writeLine('class Meta:');
     codeWriter.indent();
-    if (elem.isAbstact){
+    if (elem.isAbstract){
       codeWriter.writeLine('abstract = True');
       is_blank = false;      
     }
@@ -312,21 +312,8 @@ class DjangoCodeGenerator {
     var tags = asso.tags;
     var tags_str = "";
 
-    console.log(tags);
-
-    tags_str += tags.map(function (e) {
-      if (e.kind == "string"){
-        return e.name + "='" + e.value.trim().split('\n') + "'";   
-      }else if (e.kind == "number"){
-        return e.name + "=" + e.number;
-      }else if (e.kind == "boolean"){
-        if (e.checked){
-          return e.name + "=True";        
-        }else {
-          return e.name + "=False";
-        }
-      }
-    }).join(', ');
+    // console.log(tags);
+    tags_str += getTagsString(tags);
 
     if (tags_str){
       tags_str = ", " + tags_str;
@@ -348,7 +335,7 @@ class DjangoCodeGenerator {
         if (asso.end1.multiplicity == "1" && asso.end2.multiplicity == "1"){
           var refObjName = asso.end2.reference.name;
           var var_name = asso.name;
-          codeWriter.writeLine(var_name + " = models.OneToOne('" + refObjName + "'"+ tags_str +")");
+          codeWriter.writeLine(var_name + " = models.OneToOneField('" + refObjName + "'"+ tags_str +")");
         }
 
         if (['0..*', '1..*', '*'].includes(asso.end1.multiplicity.trim()) && asso.end2.multiplicity == "1"){
@@ -369,6 +356,7 @@ class DjangoCodeGenerator {
             }
           }
           codeWriter.writeLine(var_name + " = models.ManyToMany('" + asso.end2.reference.name + "'"+ tags_str +")");
+
         }
     }
   }
@@ -442,23 +430,25 @@ class DjangoCodeGenerator {
     this.writeDoc(codeWriter, elem.documentation, options);
     this.writeMeta(codeWriter, elem, options);
 
-    if (elem.attributes.length === 0 && elem.operations.length === 0) {
-      codeWriter.writeLine('pass');
-    } else {
+    var write_pass = true;
 
+
+    if (elem.attributes.length !== 0) {
       elem.attributes.forEach(function (attr) {
         self.writeAttribute(codeWriter, attr, options, true);
       });
 
       codeWriter.writeLine();
-      
+
       // Constructor
       // this.writeConstructor(codeWriter, elem, options)
+      write_pass = false;
+    }
 
-      // from associations
-      var associations = app.repository.getRelationshipsOf(elem, function (rel) {
-        return (rel instanceof type.UMLAssociation);
-      });
+    // from associations
+    var associations = app.repository.getRelationshipsOf(elem, function (rel) {
+      return (rel instanceof type.UMLAssociation);
+    });
 
       // Relations
       for (var i = 0, len = associations.length; i < len; i++) {
@@ -476,13 +466,20 @@ class DjangoCodeGenerator {
       }
       
       codeWriter.writeLine();
+      write_pass = false;
+    }
 
-      // Methods
-      if (elem.operations.length > 0) {
-        elem.operations.forEach(function (op) {
-          self.writeMethod(codeWriter, op, options);
-        });
-      }
+
+    // Methods
+    if (elem.operations.length > 0) {
+      elem.operations.forEach(function (op) {
+        self.writeMethod(codeWriter, op, options);
+      });
+      write_pass = false;
+    }
+
+    if (write_pass) {
+      codeWriter.writeLine('pass');
     }
 
     codeWriter.outdent();
@@ -541,6 +538,20 @@ class DjangoCodeGenerator {
   }
 }
 
+function getTagsString(tags) {
+  return tags.map(function (e) {
+    if (e.kind == "string") {
+      return e.name + "='" + e.value.trim().split('\n') + "'";
+    } else if (e.kind == "number") {
+      return e.name + "=" + e.number;
+    } else if (e.kind == "boolean") {
+      return e.name + (e.checked ? "=True" : "=False");
+    } else if (e.kind == "reference") {
+      return e.name + "=" + e.reference.name;
+    }
+  }).join(', ')
+}
+
 function mapBasicTypesToDjangoFieldClass(elem){
   var line = "";
   var type_maps = {
@@ -559,19 +570,7 @@ function mapBasicTypesToDjangoFieldClass(elem){
 
   var tags = elem.tags;
 
-  line += '(' + tags.map(function (e) {
-    if (e.kind == "string"){
-      return e.name + "='" + e.value.trim().split('\n') + "'";   
-    }else if (e.kind == "number"){
-      return e.name + "=" + e.number;
-    }else if (e.kind == "boolean"){
-      if (e.checked){
-        return e.name + "=True";        
-      }else {
-        return e.name + "=False";
-      }
-    }
-  }).join(', ') + ')';
+  line += '(' + getTagsString(tags) + ')';
   return line;
 }
 
