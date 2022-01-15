@@ -13,7 +13,7 @@
       "default": "#!/usr/bin/python"
     },
     "django.gen.djangoModelsPackage": {
-      "text": "Djagno Models Package",
+      "text": "Django Models Package",
       "description": "Django Models Package",
       "type": "string",
       "default": "from django.db import models"
