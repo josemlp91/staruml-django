@@ -52,12 +52,7 @@ class DjangoCodeGenerator {
     if (options.useTab) {
       return '\t';
     } else {
-      var i, len;
-      var indent = [];
-      for (i = 0, len = options.indentSpaces; i < len; i++) {
-        indent.push(' ');
-      }
-      return indent.join('');
+      return ' '.repeat(options.indentSpaces);
     }
   }
 
