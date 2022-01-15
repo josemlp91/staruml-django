@@ -543,14 +543,14 @@ function generate (baseModel, basePath, options) {
   fullPath = basePath + '/' + baseModel.name.toLowerCase();
   if (!fs.existsSync(fullPath)){
     fs.mkdirSync(fullPath);
-  }else{
-    var buttonId = app.dialogs.showConfirmDialog("Exist a folder with the same name, overwrite?");
+  } else {
+    var buttonId = app.dialogs.showConfirmDialog("A folder exists with the same name, overwrite?");
     if (buttonId === 'ok') {
       deleteFolderRecursive(fullPath);
       fs.mkdirSync(fullPath);
-      app.dialogs.showInfoDialog("New folder creaded.");
+      app.dialogs.showInfoDialog("New folder created.");
     } else {
-      app.dialogs.showErrorDialog("Canceled operation by user.");
+      app.dialogs.showErrorDialog("Operation canceled by user.");
     }
   }
   baseModel.ownedElements.forEach(child => {
